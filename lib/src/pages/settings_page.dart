@@ -3,8 +3,8 @@ import 'package:preferenciasusuariosapp/src/shared_pref/preferencias_usuarios.da
 import 'package:preferenciasusuariosapp/src/widgets/menu_widget.dart';
 
 
-
 class SettingsPage extends StatefulWidget {
+
   static final String routeName = 'settings';
 
   @override
@@ -12,83 +12,97 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final prefs = PreferenciasUsuario();
-  bool _colorSecundario = true;
+
+  bool _colorSecundario;
   int _genero;
-  String _nombre = 'Starlyng';
-  TextEditingController _textEditingController;
+  
+  TextEditingController _textController;
+
+  final prefs = new PreferenciasUsuario();
 
   @override
   void initState() {
     super.initState();
+    
+    prefs.ultimaPagina = SettingsPage.routeName;
     _genero = prefs.genero;
     _colorSecundario = prefs.colorSecundario;
 
-    _textEditingController = new TextEditingController(text: prefs.nombreUsuario);
+    _textController = new TextEditingController( text: prefs.nombreUsuario );
   }
 
-  _setSelectRadio(int valor) async {
+
+  _setSelectedRadio( int valor ) {
+   
     prefs.genero = valor;
-    prefs.ultimaPagina = SettingsPage.routeName;
     _genero = valor;
     setState(() {});
+
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Ajustes'),
-          backgroundColor: (prefs.colorSecundario) ? Colors.teal : Colors.blue,
-        ),
-        drawer: MenuWidget(),
-        body: ListView(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(5.0),
-              child: Text(
-                'Settings',
-                style: TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold),
+      appBar: AppBar(
+        title: Text('Ajustes'),
+        backgroundColor: (prefs.colorSecundario) ? Colors.teal : Colors.blue,
+      ),
+      drawer: MenuWidget(),
+      body: ListView(
+        children: <Widget>[
+
+          Container(
+            padding: EdgeInsets.all(5.0),
+            child: Text('Settings', style: TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold )),
+          ),
+
+          Divider(),
+          SwitchListTile(
+            value: _colorSecundario,
+            title: Text('Color secundario'),
+            onChanged: ( value ){
+              setState(() {
+                _colorSecundario = value;
+                prefs.colorSecundario = value;
+              });
+            },
+          ),
+
+          RadioListTile(
+            value: 1,
+            title: Text('Masculino'),
+            groupValue: _genero,
+            onChanged: _setSelectedRadio,
+          ),
+
+          RadioListTile(
+            value: 2,
+            title: Text('Femenino'),
+            groupValue: _genero,
+            onChanged: _setSelectedRadio
+          ),
+
+          Divider(),
+
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: TextField(
+              controller: _textController,
+              decoration: InputDecoration(
+                labelText: 'Nombre',
+                helperText: 'Nombre de la persona usando el teléfono',
               ),
-            ),
-            Divider(),
-            SwitchListTile(
-              value: _colorSecundario,
-              title: Text('Color Secundario'),
-              onChanged: (value) {
-                setState(() {
-                  _colorSecundario = value;
-                  prefs.colorSecundario = value;
-                });
+              onChanged: ( value ) {
+                prefs.nombreUsuario = value;
               },
             ),
-            RadioListTile(
-              value: 1,
-              title: Text('Masculino'),
-              groupValue: _genero,
-              onChanged: _setSelectRadio,
-            ),
-            RadioListTile(
-              value: 2,
-              title: Text('Femenino'),
-              groupValue: _genero,
-              onChanged: _setSelectRadio,
-            ),
-            Divider(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: TextField(
-                controller: _textEditingController,
-                decoration: InputDecoration(
-                  labelText: 'Nombre',
-                  helperText: 'Nombre de la persona',
-                ),
-                onChanged: (value) {
-                  prefs.nombreUsuario = value;
-                },
-              ),
-            ),
-          ],
-        ));
+          )
+
+
+
+        ],
+      )
+    );
   }
 }
